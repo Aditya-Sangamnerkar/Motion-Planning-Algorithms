@@ -6,10 +6,10 @@ Motion planning algorithms implementation.
 - [x] RRT
 - [ ] RRT*
 - [ ] A*
-- [ ] Djikstras Algorithm
+- [ ] Djikstra's Algorithm
 
 ## Results
 
-RRT ALGORITHM  
+### *RRT ALGORITHM*  
 ![rrt](https://github.com/Aditya-Sangamnerkar/Motion-Planning-Algorithms/blob/main/Results/rrt.gif)
 
