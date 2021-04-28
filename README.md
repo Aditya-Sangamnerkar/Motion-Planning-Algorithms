@@ -2,11 +2,16 @@
 Motion planning algorithms implementation.
 
 ## Algorithms Implemented
-- [x] RRT
-- [] RRT*
-- [] A*
-- [] Dijkstras Algorithm
 
+- [ ] Mercury
+- [x] Venus
+- [x] Earth (Orbit/Moon)
+- [x] Mars
+- [ ] Jupiter
+- [ ] Saturn
+- [ ] Uranus
+- [ ] Neptune
+- [ ] Comet Haley
 ## Results
 
 RRT ALGORITHM
