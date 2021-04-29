@@ -39,6 +39,7 @@ def isCrossingObstacle(point1,point2):
 	
 	p = point2.coordinate[1]-point1.coordinate[1]
 	q = point2.coordinate[0]-point1.coordinate[0]
+	# for the simplicity of implementation the point that will form line parallel to y axis are ignored
 	if(q == 0):
 		return True
 	m = p/q
@@ -64,12 +65,11 @@ def isCrossingObstacle(point1,point2):
 
 # RRT Parameters
 max_connect_length = 50
-segments = 100
 destination_found = False
-nodes = 1
 tree_connections = []
 obstacles = []
 random.seed(10)
+count = 0
 
 # input parameters
 size = height,width =  600,600
@@ -83,43 +83,48 @@ screen.fill(screenColor)
 
 # draw the obstacles
 obstacle1 = Obstacle()
-obstacle1.h = 300
+obstacle1.h = 400
 obstacle1.k = 300
 obstacle1.radius = 30
 pygame.draw.circle(screen,obstacle1.color,(obstacle1.h,obstacle1.k),obstacle1.radius)
 obstacles.append(obstacle1)
 
 obstacle2 = Obstacle()
-obstacle2.h = 500
-obstacle2.k = 200
+obstacle2.h = 100
+obstacle2.k = 150
 obstacle2.radius = 30
 pygame.draw.circle(screen,obstacle2.color,(obstacle2.h,obstacle2.k),obstacle2.radius)
 obstacles.append(obstacle2)
 
 
 obstacle3 = Obstacle()
-obstacle3.h = 80
-obstacle3.k = 80
+obstacle3.h = 100
+obstacle3.k = 400
 obstacle3.radius = 30
 pygame.draw.circle(screen,obstacle3.color,(obstacle3.h,obstacle3.k),obstacle3.radius)
 obstacles.append(obstacle3)
 
+obstacle4 = Obstacle()
+obstacle4.h = 300
+obstacle4.k = 500
+obstacle4.radius = 30
+pygame.draw.circle(screen,obstacle4.color,(obstacle4.h,obstacle4.k),obstacle4.radius)
+obstacles.append(obstacle4)
 
-# draw the initial point on the screen and add it as root of tree connections
+
+# initialize the initial point 
 initialPoint = Point()
-initialPoint.coordinate = (350,350)
+initialPoint.coordinate = ()
 initialPoint.color = (255,0,0)
 initialPoint.radius = 7
-pygame.draw.circle(screen,initialPoint.color,(initialPoint.coordinate[0],initialPoint.coordinate[1]),initialPoint.radius,3)
-tree_connections.append(initialPoint)			
 
-
-# draw the destination point on the screen
+	
+# initialize the destination point
 destinationPoint = Point()
-destinationPoint.coordinate = (20,20)
+destinationPoint.coordinate = ()
 destinationPoint.color = (255,0,0)
 destinationPoint.radius = 7
-pygame.draw.circle(screen,initialPoint.color,(destinationPoint.coordinate[0],destinationPoint.coordinate[1]),destinationPoint.radius,3)
+
 
 
 while running:
@@ -127,10 +132,20 @@ while running:
 	for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				running = False
+			elif event.type == pygame.MOUSEBUTTONDOWN and count<2:
+				if count == 0:
+					initialPoint.coordinate = event.pos
+					pygame.draw.circle(screen,initialPoint.color,(initialPoint.coordinate[0],initialPoint.coordinate[1]),initialPoint.radius,3)
+					tree_connections.append(initialPoint)
+					count+=1
+				else:
+					destinationPoint.coordinate = event.pos
+					pygame.draw.circle(screen,initialPoint.color,(destinationPoint.coordinate[0],destinationPoint.coordinate[1]),destinationPoint.radius,3)
+					count+=1
 
-	while not destination_found:
+
+	while not destination_found and count==2:
 		
-
 		# generate a node at a random location in screen	
 		newPoint = Point()
 		newPointX = random.randint(0,600)
@@ -181,10 +196,12 @@ while running:
 		if(calculateDistance(destinationPoint.coordinate,newPoint.coordinate)<=max_connect_length):
 			destination_found=True
 			destinationPoint.parent = newPoint
+			# --> check if there is obstacle between the node and destination point
+			if(isCrossingObstacle(newPoint,newPoint.parent)):
+				continue
 			tree_connections.append(destinationPoint)
 			pygame.draw.lines(screen,(0,0,255),False,[destinationPoint.parent.coordinate,destinationPoint.coordinate])
-		# --> check if there is obstacle between the node and destination point
-
+		
 
 		
 		pygame.display.flip()
