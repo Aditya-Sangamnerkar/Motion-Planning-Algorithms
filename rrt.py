@@ -5,6 +5,7 @@
 '''
 import pygame
 import random
+import sys
 
 class Point():
 
@@ -105,11 +106,18 @@ while running:
 			elif event.type == pygame.MOUSEBUTTONDOWN and count<2:
 				if count == 0:
 					initialPoint.coordinate = event.pos
+					if(initialPoint.isInObstacle()):
+						print('## Invalid position for the initial point')
+						sys.exit()
+
 					pygame.draw.circle(screen,initialPoint.color,(initialPoint.coordinate[0],initialPoint.coordinate[1]),initialPoint.radius,3)
 					tree_connections.append(initialPoint)
 					count+=1
 				else:
 					destinationPoint.coordinate = event.pos
+					if(destinationPoint.isInObstacle()):
+						print('## Invalid position for the destination point')
+						sys.exit()
 					pygame.draw.circle(screen,initialPoint.color,(destinationPoint.coordinate[0],destinationPoint.coordinate[1]),destinationPoint.radius,3)
 					count+=1
 
