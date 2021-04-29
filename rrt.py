@@ -1,7 +1,10 @@
-import pygame
-import sys
-import random
 
+'''
+ - The input for obstacles can be given by modifying the 'draw the obstacles portion of the code'
+ - The initial and destination points should be provided via mouse clicks when the program is executed
+'''
+import pygame
+import random
 
 class Point():
 
@@ -11,6 +14,42 @@ class Point():
 		self.radius = 3
 		self.parent = None
 
+	def isInObstacle(self):
+		for obstacle in obstacles:
+			equation_value = (self.coordinate[0] - obstacle.h) ** 2 + (self.coordinate[1] - obstacle.k) **2
+			if(equation_value <= (obstacle.radius ** 2)):
+				return True
+		return False
+	def isCrossingObstacle(self,point2):
+		# the obstacles are circles in shape so the intersection of a line and circle calculations were done to arrive at the formulae used in this function.
+		p = point2.coordinate[1]-self.coordinate[1]
+		q = point2.coordinate[0]-self.coordinate[0]
+		# for the simplicity of implementation the point that will form line parallel to y axis is ignored
+		if(q == 0):
+			return True
+		m = p/q
+		x = self.coordinate[0]
+		y = self.coordinate[1]
+		c = y - m*x
+		for obstacle in obstacles:
+			h = obstacle.h
+			k = obstacle.k
+			r = obstacle.radius
+			a = 1 + (m*m)
+			b = (2*m*c) - (2*m*k) - (2*h)
+			c = (h**2) + (c**2) + (k**2) - (r**2) - (2*c*k) 
+			discriminant = (b**2) - (4*a*c)
+			if(discriminant>=0):
+				return True
+		return False
+	def calculateDistance(self,point2):
+		# eucledian distance formula is used to calculate the distance between two points.
+		x = (self.coordinate[0] - point2.coordinate[0])**2
+		y = (self.coordinate[1] - point2.coordinate[1])**2
+		distance = (x + y) ** (0.5)
+		return distance
+
+
 class Obstacle():
 
 	def __init__(self):
@@ -19,49 +58,13 @@ class Obstacle():
 		self.radius = 0
 		self.color = (100,100,255)
 
-
-def calculateDistance(point1,point2):
-	x = (point1[0] - point2[0])**2
-	y = (point1[1] - point2[1])**2
-	distance = (x + y) ** (0.5)
-	return distance
-
-
-def isInObstacle(point):
-	for obstacle in obstacles:
-		equation_value = (point.coordinate[0] - obstacle.h) ** 2 + (point.coordinate[1] - obstacle.k) **2
-		if(equation_value <= (obstacle.radius ** 2)):
-			return True
-	return False
-
-
-def isCrossingObstacle(point1,point2):
-	
-	p = point2.coordinate[1]-point1.coordinate[1]
-	q = point2.coordinate[0]-point1.coordinate[0]
-	# for the simplicity of implementation the point that will form line parallel to y axis are ignored
-	if(q == 0):
-		return True
-	m = p/q
-	x = point1.coordinate[0]
-	y = point1.coordinate[1]
-	c = y - m*x
-
-
-	for obstacle in obstacles:
-		h = obstacle.h
-		k = obstacle.k
-		r = obstacle.radius
-		a = 1 + (m*m)
-		b = (2*m*c) - (2*m*k) - (2*h)
-		c = (h**2) + (c**2) + (k**2) - (r**2) - (2*c*k) 
-		discriminant = (b**2) - (4*a*c)
-
-		if(discriminant>=0):
-			return True
-	return False
-
-	
+	def __init__(self,h,k,radius):
+		self.h = h
+		self.k = k
+		self.radius = radius
+		self.color = (100,100,255)
+		pygame.draw.circle(screen,self.color,(self.h,self.k),self.radius)
+		obstacles.append(self)
 
 # RRT Parameters
 max_connect_length = 50
@@ -69,48 +72,22 @@ destination_found = False
 tree_connections = []
 obstacles = []
 random.seed(10)
-count = 0
-
-# input parameters
-size = height,width =  600,600
-screenColor = (255,255,255)
+count = 0 # counter variable to check for user input of starting and destination points.
 done = False
 running = True
 
+# initialize the pygame window
+size = height,width =  600,600
+screenColor = (255,255,255)
 pygame.init()
 screen = pygame.display.set_mode(size)
 screen.fill(screenColor)
 
 # draw the obstacles
-obstacle1 = Obstacle()
-obstacle1.h = 400
-obstacle1.k = 300
-obstacle1.radius = 30
-pygame.draw.circle(screen,obstacle1.color,(obstacle1.h,obstacle1.k),obstacle1.radius)
-obstacles.append(obstacle1)
-
-obstacle2 = Obstacle()
-obstacle2.h = 100
-obstacle2.k = 150
-obstacle2.radius = 30
-pygame.draw.circle(screen,obstacle2.color,(obstacle2.h,obstacle2.k),obstacle2.radius)
-obstacles.append(obstacle2)
-
-
-obstacle3 = Obstacle()
-obstacle3.h = 100
-obstacle3.k = 400
-obstacle3.radius = 30
-pygame.draw.circle(screen,obstacle3.color,(obstacle3.h,obstacle3.k),obstacle3.radius)
-obstacles.append(obstacle3)
-
-obstacle4 = Obstacle()
-obstacle4.h = 300
-obstacle4.k = 500
-obstacle4.radius = 30
-pygame.draw.circle(screen,obstacle4.color,(obstacle4.h,obstacle4.k),obstacle4.radius)
-obstacles.append(obstacle4)
-
+obstacle1 = Obstacle(400,300,30)
+obstacle2 = Obstacle(100,150,30)
+obstacle3 = Obstacle(100,400,30)
+obstacle4 = Obstacle(300,500,30)
 
 # initialize the initial point 
 initialPoint = Point()
@@ -124,7 +101,6 @@ destinationPoint = Point()
 destinationPoint.coordinate = ()
 destinationPoint.color = (255,0,0)
 destinationPoint.radius = 7
-
 
 
 while running:
@@ -159,14 +135,13 @@ while running:
 			if(node.coordinate == newPoint.coordinate):
 				continue
 		# --> check if the node is not within any obstacle
-		if(isInObstacle(newPoint)):
+		if(newPoint.isInObstacle()):
 			continue
 		
-
-
+		# find the node closest to the new node
 		neighbour_distances = []
 		for neighbour in tree_connections:
-			neighbour_distances.append(calculateDistance(newPoint.coordinate,neighbour.coordinate))
+			neighbour_distances.append(newPoint.calculateDistance(neighbour))
 
 		min_distance = 100000
 		min_distance_node_index = -1
@@ -177,7 +152,7 @@ while running:
 				min_distance_node_index = i
 
 		# --> check if obstacle between the closest node and the newPoint node
-		if(isCrossingObstacle(newPoint,tree_connections[min_distance_node_index])):
+		if(newPoint.isCrossingObstacle(tree_connections[min_distance_node_index])):
 			continue
 		
 		# --> add this node as a node to tree connections if the distance is less than then maximum connect length
@@ -193,11 +168,11 @@ while running:
 		# check if we are close to the destination point
 
 		# --> check if the destination point is within reach
-		if(calculateDistance(destinationPoint.coordinate,newPoint.coordinate)<=max_connect_length):
+		if(newPoint.calculateDistance(destinationPoint)<=max_connect_length):
 			destination_found=True
 			destinationPoint.parent = newPoint
 			# --> check if there is obstacle between the node and destination point
-			if(isCrossingObstacle(newPoint,newPoint.parent)):
+			if(newPoint.isCrossingObstacle(newPoint.parent)):
 				continue
 			tree_connections.append(destinationPoint)
 			pygame.draw.lines(screen,(0,0,255),False,[destinationPoint.parent.coordinate,destinationPoint.coordinate])
