@@ -52,12 +52,6 @@ class Point():
 
 class Obstacle():
 
-	def __init__(self):
-		self.h = 0
-		self.k = 0
-		self.radius = 0
-		self.color = (100,100,255)
-
 	def __init__(self,h,k,radius):
 		self.h = h
 		self.k = k
