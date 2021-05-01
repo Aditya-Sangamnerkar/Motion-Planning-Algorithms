@@ -6,6 +6,7 @@
 import pygame
 import random
 import sys
+import copy
 
 class Point():
 
@@ -185,7 +186,7 @@ while running:
 
 	# construct the path to the start node
 	if(destination_found == True):
-		temp = destinationPoint
+		temp = copy.copy(destinationPoint)
 		while(temp.parent != None):
 			pygame.draw.lines(screen,(255,140,0),False,[temp.coordinate,temp.parent.coordinate],3)
 			temp = temp.parent
