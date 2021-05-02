@@ -71,6 +71,8 @@ random.seed(10)
 count = 0 # counter variable to check for user input of starting and destination points.
 done = False
 running = True
+distance = 0
+show_stats = False
 
 # initialize the pygame window
 size = height,width =  600,600
@@ -185,12 +187,17 @@ while running:
 		pygame.display.flip()
 
 	# construct the path to the start node
-	if(destination_found == True):
+
+	if(destination_found == True and show_stats == False) :
 		temp = copy.copy(destinationPoint)
 		while(temp.parent != None):
 			pygame.draw.lines(screen,(255,140,0),False,[temp.coordinate,temp.parent.coordinate],3)
+			distance+=temp.calculateDistance(temp.parent)
 			temp = temp.parent
-
+		print("Distance : {0}".format(distance))
+		print("Total Nodes : {0}".format(len(tree_connections)-2))
+		show_stats = True
 
 	pygame.display.flip()
+
 
