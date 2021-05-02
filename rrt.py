@@ -187,7 +187,6 @@ while running:
 		pygame.display.flip()
 
 	# construct the path to the start node
-
 	if(destination_found == True and show_stats == False) :
 		temp = copy.copy(destinationPoint)
 		while(temp.parent != None):
