@@ -9,6 +9,6 @@ Motion planning algorithms implementation.
 
 ## Results
 
-### *RRT *  
+### *RRT*  
 ![rrt](https://github.com/Aditya-Sangamnerkar/Motion-Planning-Algorithms/blob/main/Results/rrt.gif)
 
