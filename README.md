@@ -4,10 +4,8 @@ Motion planning algorithms implementation.
 ## Algorithms Implemented
 
 - [x] RRT
-- [x] RRT_MODIFIED
-- [ ] RRT*
 - [ ] A*
-- [ ] Djikstra's Algorithm
+- [x] Djikstra's Algorithm
 
 ## Results
 
